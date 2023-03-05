@@ -1,0 +1,13 @@
+[project]
+name = "sssg"
+version = "0.1"
+description = "simple static site generator"
+dependencies = [
+    "mistletoe",
+    "pygments",
+    "tomli",
+]
+
+[build-system]
+requires = ["flit_core >=3.8"]
+build-backend = "flit_core.buildapi"
