@@ -1,3 +1,8 @@
+---
+title = "Solving kilordle"
+date = "May 8, 2022"
+---
+
 If you like puzzles and have logged onto the internet in the last year, you've probably heard of
 [wordle](https://en.wikipedia.org/wiki/Wordle).
 
@@ -203,6 +208,7 @@ We use the [PuLP](https://coin-or.github.io/pulp/) library with the default
 [CBC](https://github.com/coin-or/Cbc) solver.
 
 ```python
+# pip install pulp
 from pulp import LpProblem, LpMinimize, LpVariable, lpSum
 
 # create a problem instance
