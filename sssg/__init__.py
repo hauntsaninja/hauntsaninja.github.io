@@ -52,6 +52,10 @@ GITHUB_CSS = """
 </style>
 """
 
+GOAT_COUNTER = """
+<script data-goatcounter="https://hauntsaninja.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+"""
+
 HOME = Template(f"""
 <!doctype html>
 <html>
@@ -64,8 +68,7 @@ HOME = Template(f"""
 {GITHUB_CSS}
 <body class="markdown-body body-sizing body-padding">
 $$$${{home}}
-</p>
-
+{GOAT_COUNTER}
 </body>
 </html>
 """)
@@ -108,6 +111,7 @@ POST = Template(f"""
 $$$${{article}}
 </article>
 {UTTERANCES}
+{GOAT_COUNTER}
 </html>
 """)
 
