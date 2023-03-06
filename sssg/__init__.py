@@ -74,7 +74,7 @@ $$$${{home}}
 """)
 
 HEADER = f"""
-<header class="markdown-body body-sizing" style="padding-left: 45px">
+<header class="markdown-body body-sizing">
 <nav am-layout="horizontal">
 <a href="/" style="padding-right: 10px">Home</a>
 <a href="https://github.com/hauntsaninja" style="padding-right: 10px">Github</a>
@@ -105,13 +105,14 @@ POST = Template(f"""
 <title>$$$${{title}}</title>
 </head>
 {GITHUB_CSS}
-
+<body class="markdown-body body-sizing body-padding">
 {HEADER}
-<article class="markdown-body body-sizing body-padding">
+<article>
 $$$${{article}}
 </article>
 {UTTERANCES}
 {GOAT_COUNTER}
+</body>
 </html>
 """)
 
