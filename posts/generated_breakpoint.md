@@ -34,7 +34,7 @@ a line number :-(
 
 Let's fix that!
 
-### `better_exec`
+## `exec_with_source`
 
 We'll need to use some import system + `inspect` + `linecache` magic to trick Python into finding
 the source code for our generated code. Here's what that looks like:
@@ -108,7 +108,7 @@ If you run this, you'll get a much more useful debugging experience:
 ```
 Much better!
 
-### How exactly does that work?
+## How exactly does that work?
 
 `pdb` locates source code using `linecache.getlines` or `inspect.getsourcelines`.
 - [`list` command](https://github.com/python/cpython/blob/v3.13.0/Lib/pdb.py#L1852)
@@ -138,7 +138,7 @@ condition — why does the filename need to be absolute?
 
 This is arguably a bug in CPython and one we'll take a closer look at and attempt to fix.
 
-### Figuring out why `inspect.getsourcelines` breaks for frame objects in generated code
+## Figuring out why `inspect.getsourcelines` breaks for frame objects in generated code
 
 This section is kind of gory, so only read if you're interested. The issue is that when `pdb`
 calls `inspect.getsourcelines` with a frame object, the frame's `f_globals` gets lost somewhere
