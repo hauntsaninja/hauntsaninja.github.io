@@ -1,8 +1,10 @@
 import argparse
 import shutil
 import string
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
+import dateutil.parser
 import mistletoe
 import tomli
 from mistletoe import HTMLRenderer
@@ -63,6 +65,7 @@ HOME = Template(f"""
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 {GITHUB_MARKDOWN}
+<link rel="alternate" type="application/atom+xml" title="Shantanu's Blog" href="/feed">
 <title>Shantanu</title>
 {GITHUB_CSS}
 </head>
@@ -138,14 +141,17 @@ def main():
         md_index = contents.index("---\n", 1)
 
         info = tomli.loads("".join(contents[1:md_index]))
-        info["url"] = post.with_suffix(".html").name
+        info["slug"] = post.stem
+        info["location"] = post.stem + ".html"
+        info["dt"] = dateutil.parser.parse(info["date"])
         post_infos.append(info)
 
         md_contents = [f"# {info['title']}\n\n", f"*{info['date']}*\n"] + contents[md_index + 1 :]
         md_html = mistletoe.markdown(md_contents, renderer=PygmentsRenderer)
 
-        with open(args.dst / info["url"], "w") as f:
+        with open(args.dst / info["location"], "w") as f:
             f.write(POST.substitute(article=md_html, title=info["title"]))
+    del post
 
     home_markdown = """
 # Hello!
@@ -155,6 +161,7 @@ I'm Shantanu. I can often be found under the username hauntsaninja — in partic
 - [Bluesky](https://bsky.app/profile/hauntsaninja.bsky.social) / [Twitter](https://twitter.com/hauntsaninja)
 - [LinkedIn](https://www.linkedin.com/in/shantanu-jain-yes-that-one/)
 - username at gmail dot com
+- [RSS feed](/feed)
 
 I contribute to open source software, particularly in the Python and static type checking
 ecosystems. I'm a maintainer of [mypy](https://github.com/python/mypy) and
@@ -170,7 +177,41 @@ and building infrastructure to train them. Prior to that, I worked at [Quora](ht
 Here's a list of posts on this blog:
 """
     for info in post_infos:
-        home_markdown += f"- [{info['title']}]({info['url']})\n"
+        home_markdown += f"- [{info['title']}]({info['slug']})\n"
 
     with open(args.dst / "index.html", "w") as f:
         f.write(HOME.substitute(home=mistletoe.markdown(home_markdown)))
+
+    # Atom feed
+    root = ET.Element("feed", xmlns="http://www.w3.org/2005/Atom")
+    ET.SubElement(root, "title").text = "Shantanu's blog"
+    ET.SubElement(root, "id").text = "https://hauntsaninja.github.io/"
+    ET.SubElement(root, "updated").text = max(info["dt"] for info in post_infos).isoformat()
+    ET.SubElement(root, "link", href="https://hauntsaninja.github.io/feed", rel="self")
+    ET.SubElement(ET.SubElement(root, "author"), "name").text = "Shantanu"
+
+    for info in post_infos:
+        entry = ET.SubElement(root, "entry")
+        ET.SubElement(entry, "id").text = f"tag:hauntsaninja.github.io:{info["slug"]}"
+        ET.SubElement(entry, "title").text = info["title"]
+        ET.SubElement(entry, "updated").text = info["dt"].isoformat()
+        ET.SubElement(ET.SubElement(entry, "author"), "name").text = "Shantanu"
+        ET.SubElement(entry, "link", href=f"https://hauntsaninja.github.io/{info['location']}", rel="alternate")
+        if "summary" in info:
+            ET.SubElement(entry, "summary").text = info["summary"]
+
+    with open(args.dst / "feed", "w") as f:
+        f.write(ET.tostring(root, encoding="unicode"))
+
+    # Sitemap
+    root = ET.Element("urlset", xmlns="http://www.sitemaps.org/schemas/sitemap/0.9")
+    for info in post_infos:
+        url = ET.SubElement(root, "url")
+        ET.SubElement(url, "loc").text = f"https://hauntsaninja.github.io/{info['location']}"
+        ET.SubElement(url, "lastmod").text = info["dt"].isoformat()
+    with open(args.dst / "sitemap.xml", "w") as f:
+        f.write(ET.tostring(root, encoding="unicode"))
+
+    # Robots.txt
+    with open(args.dst / "robots.txt", "w") as f:
+        f.write("User-agent: *\nAllow: /\nSitemap: https://hauntsaninja.github.io/sitemap.xml")
