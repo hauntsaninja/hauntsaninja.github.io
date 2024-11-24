@@ -152,7 +152,7 @@ def main():
 
 I'm Shantanu. I can often be found under the username hauntsaninja — in particular, find me at:
 - [Github](https://github.com/hauntsaninja)
-- [Twitter](https://twitter.com/hauntsaninja)
+- [Bluesky](https://bsky.app/profile/hauntsaninja.bsky.social) / [Twitter](https://twitter.com/hauntsaninja)
 - [LinkedIn](https://www.linkedin.com/in/shantanu-jain-yes-that-one/)
 - username at gmail dot com
 
@@ -162,7 +162,7 @@ ecosystems. I'm a maintainer of [mypy](https://github.com/python/mypy) and
 core developer, and contributor to several other projects. Check out this fun
 [Python CLI tool](https://github.com/hauntsaninja/pyp) I made.
 
-I currently work on language models at [OpenAI](https://openai.com), studying what data to feed them
+I've worked on language models at [OpenAI](https://openai.com) since 2020, studying what data to feed them
 and building infrastructure to train them. Prior to that, I worked at [Quora](https://www.quora.com/).
 
 ---
