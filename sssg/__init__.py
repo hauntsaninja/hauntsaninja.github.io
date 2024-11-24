@@ -184,6 +184,7 @@ Here's a list of posts on this blog:
         f.write(HOME.substitute(home=mistletoe.markdown(home_markdown)))
 
     # Atom feed
+    # https://validator.w3.org/feed/docs/atom.html
     root = ET.Element("feed", xmlns="http://www.w3.org/2005/Atom")
     ET.SubElement(root, "title").text = "Shantanu's blog"
     ET.SubElement(root, "id").text = "https://hauntsaninja.github.io/"
@@ -193,7 +194,8 @@ Here's a list of posts on this blog:
 
     for info in post_infos:
         entry = ET.SubElement(root, "entry")
-        ET.SubElement(entry, "id").text = f"tag:hauntsaninja.github.io:{info["slug"]}"
+        # https://validator.w3.org/feed/docs/error/InvalidTAG.html
+        ET.SubElement(entry, "id").text = f"tag:hauntsaninja.github.io,2024:{info["slug"]}"
         ET.SubElement(entry, "title").text = info["title"]
         ET.SubElement(entry, "updated").text = info["dt"].isoformat("T")
         ET.SubElement(ET.SubElement(entry, "author"), "name").text = "Shantanu"
@@ -201,8 +203,8 @@ Here's a list of posts on this blog:
         if "summary" in info:
             ET.SubElement(entry, "summary").text = info["summary"]
 
-    with open(args.dst / "feed.xml", "w") as f:
-        f.write(ET.tostring(root, encoding="unicode"))
+    with open(args.dst / "feed.xml", "wb") as f:
+        f.write(ET.tostring(root, xml_declaration=True, encoding="utf-8"))
 
     # Sitemap
     root = ET.Element("urlset", xmlns="http://www.sitemaps.org/schemas/sitemap/0.9")
@@ -210,8 +212,8 @@ Here's a list of posts on this blog:
         url = ET.SubElement(root, "url")
         ET.SubElement(url, "loc").text = f"https://hauntsaninja.github.io/{info['location']}"
         ET.SubElement(url, "lastmod").text = info["dt"].isoformat()
-    with open(args.dst / "sitemap.xml", "w") as f:
-        f.write(ET.tostring(root, encoding="unicode"))
+    with open(args.dst / "sitemap.xml", "wb") as f:
+        f.write(ET.tostring(root, xml_declaration=True, encoding="utf-8"))
 
     # Robots.txt
     with open(args.dst / "robots.txt", "w") as f:
