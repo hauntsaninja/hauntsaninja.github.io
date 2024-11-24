@@ -1,4 +1,5 @@
 import argparse
+import datetime
 import shutil
 import string
 import tomllib
@@ -65,7 +66,7 @@ HOME = Template(f"""
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 {GITHUB_MARKDOWN}
-<link rel="alternate" type="application/atom+xml" title="Shantanu's Blog" href="/feed">
+<link rel="alternate" type="application/atom+xml" title="Shantanu's Blog" href="/feed.xml">
 <title>Shantanu</title>
 {GITHUB_CSS}
 </head>
@@ -143,7 +144,7 @@ def main():
         info = tomllib.loads("".join(contents[1:md_index]))
         info["slug"] = post.stem
         info["location"] = post.stem + ".html"
-        info["dt"] = dateutil.parser.parse(info["date"])
+        info["dt"] = dateutil.parser.parse(info["date"]).replace(tzinfo=datetime.timezone.utc)
         post_infos.append(info)
 
         md_contents = [f"# {info['title']}\n\n", f"*{info['date']}*\n"] + contents[md_index + 1 :]
@@ -161,7 +162,7 @@ I'm Shantanu. I can often be found under the username hauntsaninja — in partic
 - [Bluesky](https://bsky.app/profile/hauntsaninja.bsky.social) / [Twitter](https://twitter.com/hauntsaninja)
 - [LinkedIn](https://www.linkedin.com/in/shantanu-jain-yes-that-one/)
 - username at gmail dot com
-- [RSS feed](/feed)
+- [RSS feed](/feed.xml)
 
 I contribute to open source software, particularly in the Python and static type checking
 ecosystems. I'm a maintainer of [mypy](https://github.com/python/mypy) and
@@ -186,21 +187,21 @@ Here's a list of posts on this blog:
     root = ET.Element("feed", xmlns="http://www.w3.org/2005/Atom")
     ET.SubElement(root, "title").text = "Shantanu's blog"
     ET.SubElement(root, "id").text = "https://hauntsaninja.github.io/"
-    ET.SubElement(root, "updated").text = max(info["dt"] for info in post_infos).isoformat()
-    ET.SubElement(root, "link", href="https://hauntsaninja.github.io/feed", rel="self")
+    ET.SubElement(root, "updated").text = max(info["dt"] for info in post_infos).isoformat("T")
+    ET.SubElement(root, "link", href="https://hauntsaninja.github.io/feed.xml", rel="self")
     ET.SubElement(ET.SubElement(root, "author"), "name").text = "Shantanu"
 
     for info in post_infos:
         entry = ET.SubElement(root, "entry")
         ET.SubElement(entry, "id").text = f"tag:hauntsaninja.github.io:{info["slug"]}"
         ET.SubElement(entry, "title").text = info["title"]
-        ET.SubElement(entry, "updated").text = info["dt"].isoformat()
+        ET.SubElement(entry, "updated").text = info["dt"].isoformat("T")
         ET.SubElement(ET.SubElement(entry, "author"), "name").text = "Shantanu"
         ET.SubElement(entry, "link", href=f"https://hauntsaninja.github.io/{info['location']}", rel="alternate")
         if "summary" in info:
             ET.SubElement(entry, "summary").text = info["summary"]
 
-    with open(args.dst / "feed", "w") as f:
+    with open(args.dst / "feed.xml", "w") as f:
         f.write(ET.tostring(root, encoding="unicode"))
 
     # Sitemap
