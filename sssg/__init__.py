@@ -64,8 +64,8 @@ HOME = Template(f"""
 <meta name="viewport" content="width=device-width, initial-scale=1">
 {GITHUB_MARKDOWN}
 <title>Shantanu</title>
-</head>
 {GITHUB_CSS}
+</head>
 <body class="markdown-body body-sizing body-padding">
 $$$${{home}}
 {GOAT_COUNTER}
@@ -73,7 +73,7 @@ $$$${{home}}
 </html>
 """)
 
-HEADER = f"""
+HEADER = """
 <header class="markdown-body body-sizing">
 <nav am-layout="horizontal">
 <a href="/" style="padding-right: 10px">Home</a>
