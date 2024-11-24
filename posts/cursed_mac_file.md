@@ -1,6 +1,7 @@
 ---
 title = "A cursed file on macOS"
 date = "September 16, 2022"
+summary = "In which I learn that files don't always work like files"
 ---
 
 I like to think that I mostly understand how computers work. But those darn computers still find

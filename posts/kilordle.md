@@ -1,6 +1,7 @@
 ---
 title = "Solving kilordle"
 date = "May 8, 2022"
+summary = "Solving a thousand wordles simultaneously with linear programming"
 ---
 
 If you like puzzles and have logged onto the internet in the last year, you've probably heard of

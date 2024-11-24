@@ -153,6 +153,7 @@ def main():
         with open(args.dst / info["location"], "w") as f:
             f.write(POST.substitute(article=md_html, title=info["title"]))
     del post
+    post_infos.sort(key=lambda info: info["dt"], reverse=True)
 
     home_markdown = """
 # Hello!

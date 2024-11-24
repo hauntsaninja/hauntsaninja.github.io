@@ -1,6 +1,7 @@
 ---
 title = "Crashes from recursion in CPython"
 date = "March 5, 2023"
+summary = "Can you still make the Python interpreter segfault with a simple recursive function?"
 ---
 
 When OpenAI first started experimenting with generative code models in 2020, we found even tiny
