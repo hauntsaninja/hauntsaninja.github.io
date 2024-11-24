@@ -179,7 +179,7 @@ and building infrastructure to train them. Prior to that, I worked at [Quora](ht
 Here's a list of posts on this blog:
 """
     for info in post_infos:
-        home_markdown += f"- [{info['title']}]({info['slug']})\n"
+        home_markdown += f"- [{info['title']}]({info['location']})\n"
 
     with open(args.dst / "index.html", "w") as f:
         f.write(HOME.substitute(home=mistletoe.markdown(home_markdown)))
