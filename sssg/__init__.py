@@ -1,12 +1,12 @@
 import argparse
 import shutil
 import string
+import tomllib
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
 import dateutil.parser
 import mistletoe
-import tomli
 from mistletoe import HTMLRenderer
 from pygments import highlight
 from pygments.formatters.html import HtmlFormatter
@@ -140,7 +140,7 @@ def main():
         assert contents[0] == "---\n"
         md_index = contents.index("---\n", 1)
 
-        info = tomli.loads("".join(contents[1:md_index]))
+        info = tomllib.loads("".join(contents[1:md_index]))
         info["slug"] = post.stem
         info["location"] = post.stem + ".html"
         info["dt"] = dateutil.parser.parse(info["date"])

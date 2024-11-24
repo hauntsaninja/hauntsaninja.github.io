@@ -5,7 +5,7 @@ description = "simple static site generator"
 dependencies = [
     "mistletoe",
     "pygments",
-    "tomli",
+    "python-dateutil",
 ]
 
 [build-system]
