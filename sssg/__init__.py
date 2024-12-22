@@ -65,6 +65,7 @@ HOME = Template(f"""
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="google-site-verification" content="NcC5nFv5YhOoK4HzZ04YD-OjQ-jKLzT9_AQK1NyT-9w" />
 {GITHUB_MARKDOWN}
 <link rel="alternate" type="application/atom+xml" title="Shantanu's Blog" href="/feed.xml">
 <title>Shantanu</title>
@@ -216,6 +217,6 @@ Here's a list of posts on this blog:
     with open(args.dst / "sitemap.xml", "wb") as f:
         f.write(ET.tostring(root, xml_declaration=True, encoding="utf-8"))
 
-    # Robots.txt
+    # robots.txt
     with open(args.dst / "robots.txt", "w") as f:
         f.write("User-agent: *\nAllow: /\nSitemap: https://hauntsaninja.github.io/sitemap.xml")
