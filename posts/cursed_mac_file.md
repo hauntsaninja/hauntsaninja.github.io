@@ -30,4 +30,4 @@ as opposed to:
 ```
 
 It looks like Apple apparently hardcodes this behaviour into `open`:
-[https://opensource.apple.com/source/xnu/xnu-7195.81.3/libsyscall/wrappers/open-base.c](https://opensource.apple.com/source/xnu/xnu-7195.81.3/libsyscall/wrappers/open-base.c)
+[https://opensource.apple.com/source/xnu/xnu-7195.81.3/libsyscall/wrappers/open-base.c](https://web.archive.org/web/20210918035948/https://opensource.apple.com/source/xnu/xnu-7195.81.3/libsyscall/wrappers/open-base.c)
