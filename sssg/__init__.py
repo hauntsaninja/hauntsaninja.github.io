@@ -1,5 +1,6 @@
 import argparse
 import datetime
+import re
 import shutil
 import string
 import tomllib
@@ -8,7 +9,7 @@ from pathlib import Path
 
 import dateutil.parser
 import mistletoe
-from mistletoe import HTMLRenderer
+from mistletoe import HTMLRenderer, block_token, span_token
 from pygments import highlight
 from pygments.formatters.html import HtmlFormatter
 from pygments.lexers import get_lexer_by_name as get_lexer
@@ -16,19 +17,75 @@ from pygments.lexers import guess_lexer
 from pygments.styles import get_style_by_name as get_style
 
 
-class PygmentsRenderer(HTMLRenderer):
+class MathSpan(span_token.SpanToken):
+    pattern = re.compile(
+        r"(?<!\\)\$\$(?P<display>(?:\\.|[^$\n])+?)\$\$|(?<!\\)\$`(?P<inline>(?:\\.|[^`\n])+?)`\$"
+    )
+    parse_inner = False
+
+    def __init__(self, match):
+        self.content = match.group("display") or match.group("inline")
+        self.display = match.group("display") is not None
+
+
+class MathBlock(block_token.BlockToken):
+    fence_pattern = re.compile(r" {0,3}\$\$\s*$")
+
+    def __init__(self, content):
+        self.children = (span_token.RawText(content),)
+
+    @property
+    def content(self):
+        return self.children[0].content
+
+    @classmethod
+    def start(cls, line):
+        return bool(cls.fence_pattern.match(line))
+
+    @classmethod
+    def check_interrupts_paragraph(cls, lines):
+        return cls.start(lines.peek())
+
+    @classmethod
+    def read(cls, lines):
+        next(lines)
+        line_buffer = []
+        for line in lines:
+            if cls.fence_pattern.match(line):
+                break
+            line_buffer.append(line)
+        return "".join(line_buffer).strip()
+
+
+class BlogRenderer(HTMLRenderer):
     formatter = HtmlFormatter()
     formatter.noclasses = True
 
     def __init__(self, *extras, style="default"):
-        super().__init__(*extras)
+        super().__init__(MathBlock, MathSpan, *extras)
         self.formatter.style = get_style(style)
+        self.has_math = False
 
     def render_block_code(self, token):
         code = token.children[0].content
         lexer = get_lexer(token.language) if token.language else guess_lexer(code)
         return highlight(code, lexer, self.formatter)
 
+    def render_math_span(self, token):
+        self.has_math = True
+        if token.display:
+            return f"\\[\n{self.escape_html_text(token.content)}\n\\]"
+        return f"\\({self.escape_html_text(token.content)}\\)"
+
+    def render_math_block(self, token):
+        self.has_math = True
+        return f"\\[\n{self.escape_html_text(token.content)}\n\\]"
+
+
+def render_markdown(contents):
+    with BlogRenderer() as renderer:
+        html = renderer.render(mistletoe.Document(contents))
+        return html, renderer.has_math
 
 class Template(string.Template):
     delimiter = "$$$$"
@@ -59,6 +116,10 @@ GOAT_COUNTER = """
 <script data-goatcounter="https://hauntsaninja.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 """
 
+MATHJAX = """
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.0.0/tex-mml-chtml.min.js" integrity="sha512-yxTB34XQUKlyuz73upeDrZ91/tbZW/YAURVWL3s+09bEWdmORQzUZwSKyBIRxSeHuSwh1aOKEffn2/D65kwyYg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+"""
+
 HOME = Template(f"""
 <!doctype html>
 <html>
@@ -70,6 +131,7 @@ HOME = Template(f"""
 <link rel="alternate" type="application/atom+xml" title="Shantanu's Blog" href="/feed.xml">
 <title>Shantanu</title>
 {GITHUB_CSS}
+$$$${{mathjax}}
 </head>
 <body class="markdown-body body-sizing body-padding">
 $$$${{home}}
@@ -108,6 +170,7 @@ POST = Template(f"""
 <meta name="viewport" content="width=device-width, initial-scale=1">
 {GITHUB_MARKDOWN}
 <title>$$$${{title}}</title>
+$$$${{mathjax}}
 </head>
 {GITHUB_CSS}
 <body class="markdown-body body-sizing body-padding">
@@ -149,10 +212,16 @@ def main():
         post_infos.append(info)
 
         md_contents = [f"# {info['title']}\n\n", f"*{info['date']}*\n"] + contents[md_index + 1 :]
-        md_html = mistletoe.markdown(md_contents, renderer=PygmentsRenderer)
+        md_html, has_math = render_markdown(md_contents)
 
         with open(args.dst / info["location"], "w") as f:
-            f.write(POST.substitute(article=md_html, title=info["title"]))
+            f.write(
+                POST.substitute(
+                    article=md_html,
+                    title=info["title"],
+                    mathjax=MATHJAX if has_math else "",
+                )
+            )
     del post
     post_infos.sort(key=lambda info: info["dt"], reverse=True)
 
@@ -182,8 +251,9 @@ Here's a list of posts on this blog:
     for info in post_infos:
         home_markdown += f"- [{info['title']}]({info['location']})\n"
 
+    home_html, has_math = render_markdown(home_markdown)
     with open(args.dst / "index.html", "w") as f:
-        f.write(HOME.substitute(home=mistletoe.markdown(home_markdown)))
+        f.write(HOME.substitute(home=home_html, mathjax=MATHJAX if has_math else ""))
 
     # Atom feed
     # https://validator.w3.org/feed/docs/atom.html

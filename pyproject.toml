@@ -3,8 +3,8 @@ name = "sssg"
 version = "0.1"
 description = "simple static site generator"
 dependencies = [
-    "mistletoe",
-    "pygments",
+    "mistletoe>=1.5.1",
+    "pygments>=2.19.2",
     "python-dateutil",
 ]
 
