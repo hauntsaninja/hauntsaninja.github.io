@@ -40,7 +40,7 @@ of AI Models](https://arxiv.org/abs/2304.03271) as the source of its methodology
 That paper quotes two sources for energy cost of inference (aka using a model):
 - 0.004 kWh per page of text, from the [GPT-3 paper](https://arxiv.org/abs/2005.14165)
 - 0.00396 kWh per request, from dividing two numbers in [Estimating the Carbon Footprint of BLOOM](https://arxiv.org/abs/2211.02001)
-<sup><a href="#fn2" id="ref2">but see 2</a></sup>
+<sup><a href="#fn2" id="ref2">but importantly see 2</a></sup>
 
 A page of text is conventionally 500 words (600 tokens), so plugging in the
 numbers<sup><a href="#fn3" id="ref3">see 3</a></sup>,
